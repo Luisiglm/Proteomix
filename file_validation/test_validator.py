@@ -1,24 +1,27 @@
-import test_validator
+import unittest
 import pandas as pd
 import os
 
 from validator import validate_csv
 
 
-class TestCSV(test_validator.TestCase):
+class TestCSV(unittest.TestCase):
 
+    # Checks that a correctly formatted CSV passes validation
     def test_valid_csv(self):
         valid, message = validate_csv("../PD1_TCR_IP_fragpipe.csv")
 
         self.assertTrue(valid, message)
 
 
+    # Checks that the validator handles missing files correctly
     def test_missing_file(self):
         valid, message = validate_csv("missing.csv")
 
         self.assertFalse(valid)
 
 
+    # Checks that an empty CSV file is rejected
     def test_empty_csv(self):
 
         df = pd.DataFrame()
@@ -32,6 +35,7 @@ class TestCSV(test_validator.TestCase):
         os.remove("empty.csv")
 
 
+    # Checks that incorrect CSV structures are rejected
     def test_wrong_column_count(self):
 
         df = pd.DataFrame({
@@ -48,12 +52,12 @@ class TestCSV(test_validator.TestCase):
         os.remove("wrong_column_count.csv")
 
 
+    # Checks that missing mandatory metadata columns are detected
     def test_missing_required_column(self):
 
         df = pd.DataFrame({
             "Protein": ["P001"],
             "Probability": [0.95]
-            # Missing required columns
         })
 
         df.to_csv("missing_required.csv", index=False)
@@ -65,6 +69,7 @@ class TestCSV(test_validator.TestCase):
         os.remove("missing_required.csv")
 
 
+    # Checks that duplicate column headers are detected
     def test_duplicate_headers(self):
 
         with open("duplicate_headers.csv", "w") as file:
@@ -80,6 +85,7 @@ class TestCSV(test_validator.TestCase):
         os.remove("duplicate_headers.csv")
 
 
+    # Checks that completely empty rows are detected
     def test_empty_rows(self):
 
         df = pd.DataFrame({
@@ -97,6 +103,7 @@ class TestCSV(test_validator.TestCase):
         os.remove("empty_rows.csv")
 
 
+    # Checks that missing values in required metadata fields are detected
     def test_missing_metadata_values(self):
 
         df = pd.DataFrame({
@@ -114,6 +121,7 @@ class TestCSV(test_validator.TestCase):
         os.remove("missing_metadata.csv")
 
 
+    # Checks that numeric fields reject text values
     def test_non_numeric_protein_length(self):
 
         df = pd.DataFrame({
@@ -131,6 +139,7 @@ class TestCSV(test_validator.TestCase):
         os.remove("non_numeric_length.csv")
 
 
+    # Checks probability columns only contain numeric values
     def test_non_numeric_probability(self):
 
         df = pd.DataFrame({
@@ -148,6 +157,7 @@ class TestCSV(test_validator.TestCase):
         os.remove("non_numeric_probability.csv")
 
 
+    # Checks measurement columns reject non-numeric values
     def test_non_numeric_measurement_column(self):
 
         df = pd.DataFrame({
@@ -165,11 +175,15 @@ class TestCSV(test_validator.TestCase):
 
         os.remove("non_numeric_measurement.csv")
 
+
+    # Checks that every measurement column after
+    # "Combined Unique Spectral Count" contains only numbers
     def test_all_measurement_columns_numeric(self):
+
         df = pd.DataFrame({
             "Combined Unique Spectral Count": [5, 8],
             "Sample_1": [10.5, 20.1],
-            "Sample_2": [15, "ABC"],  # Invalid
+            "Sample_2": [15, "ABC"],  # Invalid non-numeric value
             "Sample_3": [1.2, 3.4],
             "Sample_4": [100, 200]
         })
@@ -179,6 +193,7 @@ class TestCSV(test_validator.TestCase):
         valid, errors = validate_csv("measurement_numeric.csv")
 
         self.assertFalse(valid)
+
         self.assertIn(
             "Sample_2 contains non-numeric values at rows [3]",
             errors
@@ -188,7 +203,4 @@ class TestCSV(test_validator.TestCase):
 
 
 if __name__ == "__main__":
-    test_validator.main()
-
-
-df, errors = validate_csv("../PD1_TCR_IP_fragpipe.csv")
+    unittest.main()
