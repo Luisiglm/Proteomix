@@ -5,8 +5,6 @@ import sys
 # Packages your project needs
 REQUIRED_PACKAGES = [
     "pandas",
-    "numpy",
-    "scikit-learn"
 
 ]
 
