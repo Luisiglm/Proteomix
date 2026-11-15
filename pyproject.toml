@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proteomix"
+version = "0.14.0"
+description = "Differential abundance for proteomics with abundance-dependent missingness"
+requires-python = ">=3.10"
+dependencies = ["torch", "numpy", "scipy", "pandas", "matplotlib"]
+
+[project.optional-dependencies]
+progress = ["tqdm"]
+networks = ["networkx"]
+test = ["pytest", "scikit-learn", "lifelines", "networkx"]
+
+[tool.setuptools]
+packages = ["proteomix", "proteomix.ml"]
+
+[project.scripts]
+proteomix = "proteomix.cli:main"
+proteomix-ml = "proteomix.ml.cli:main"
+proteomix-plan = "proteomix.plan_cli:main"
+proteomix-structure = "proteomix.structure_cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: simulations and end-to-end runs (deselect with -m 'not slow')"]
+filterwarnings = ["ignore::FutureWarning", "ignore::UserWarning:sklearn"]
