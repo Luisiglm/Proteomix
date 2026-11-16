@@ -25,6 +25,8 @@ Modules
     ml             supervised learning: lasso / elastic net (incl. Cox), kNN, MLP, nested CV
     kinases        kinase activity inference (KSEA / CAMERA) from kinase predictions,
                    sequence windows from FASTA, motif and kinase enrichment of site clusters
+    uniprot        UniProt text-entry reader: sequence, domains, modified residues,
+                   active / binding sites
     structure      phosphosites on user-provided structures / domains: lollipop plots,
                    distance heatmaps, PyMOL scripts (command line: proteomix-structure)
     cli            command-line pipeline (`proteomix data.tsv -m meta.tsv -o out -t ip`)
@@ -60,6 +62,7 @@ from .planning import SimulationSettings, calibrate, interpret, power_analysis
 from .kinases import (kinase_activity, kinase_sets, ksea, read_fasta,
                       read_kinase_predictions)
 from .structure import read_domains, read_structure, structure_report
+from .uniprot import read_uniprot_text
 from .testing import benjamini_hochberg
 from .timecourse import build_profiles, cluster_profiles, time_design
 
@@ -130,6 +133,7 @@ __all__ = [
     "kinase_sets",
     "ksea",
     "kinase_activity",
+    "read_uniprot_text",
 ]
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
