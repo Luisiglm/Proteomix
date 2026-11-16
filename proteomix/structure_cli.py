@@ -6,7 +6,9 @@ Phosphosites of one protein in their structural context, from your own files.
 
 Inputs: a phospho results table from proteomix (or any table with site names like
 GENE_S123 and estimate / padj columns), a structure (.pdb or .cif, e.g. an AlphaFold model)
-and, optionally, a domain file (name / start / end table, UniProt TSV export or InterPro TSV).
+and, optionally, a domain file (name / start / end table, UniProt TSV export or InterPro TSV)
+and / or a UniProt entry in text format (--uniprot), which adds annotated phosphosites with
+their kinases and the distance from each site to active / binding sites.
 Outputs: <protein>_sites.csv, lollipop plot, site-domain and site-site distance heatmaps,
 and <protein>_view.pml: open it in PyMOL (File > Run Script) to rotate the structure and
 save images (File > Export Image). Keep the .pml and the copied structure file together.
@@ -23,7 +25,11 @@ def main(argv=None):
     ap.add_argument("results", help="results table (.csv / .tsv)")
     ap.add_argument("--protein", required=True, help="gene symbol or protein ID, e.g. PDCD1")
     ap.add_argument("--structure", required=True, help="structure file (.pdb or .cif)")
-    ap.add_argument("--domains", default=None, help="domain file (optional)")
+    ap.add_argument("--domains", default=None,
+                    help="domain file (optional; a UniProt text entry also works)")
+    ap.add_argument("--uniprot", default=None,
+                    help="UniProt entry in text format (e.g. P31749.txt): domains, annotated "
+                         "phosphosites and kinases, active / binding sites, sequence check")
     ap.add_argument("-o", "--out", required=True)
     ap.add_argument("--chain", default=None, help="chain (default: the first in the file)")
     ap.add_argument("--fdr", type=float, default=0.05)
@@ -41,7 +47,7 @@ def main(argv=None):
         out = structure_report(res, a.protein, a.structure, a.domains, a.out, a.chain, a.fdr,
                                a.estimate_col, a.padj_col,
                                tuple(f.strip() for f in a.formats.split(",") if f.strip()),
-                               a.dpi, a.font_size)
+                               a.dpi, a.font_size, uniprot_path=a.uniprot)
     except (ValueError, KeyError, StopIteration, FileNotFoundError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1)
@@ -51,7 +57,9 @@ def main(argv=None):
         print(f"  note: {m}")
     if len(t):
         cols = [c for c in ("site", "estimate", "padj", "plddt", "in_domain",
-                            "nearest_domain_3d", "distance_3d_angstrom") if c in t]
+                            "nearest_domain_3d", "distance_3d_angstrom", "uniprot_kinase",
+                            "nearest_functional_site", "distance_functional_angstrom")
+                if c in t]
         with pd.option_context("display.width", 160, "display.max_colwidth", 30):
             print(t[cols].round(3).to_string(index=False))
     print(f"\nPyMOL: open {out['pymol']} (File > Run Script); scene F1 = domains, "
